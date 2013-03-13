@@ -412,10 +412,18 @@ status_t HWComposer::queryDisplayProperties(int disp) {
                     config.height = values[i];
                     break;
                 case HWC_DISPLAY_DPI_X:
+#ifdef MARVELL_HWC_ENHANCEMENT
+                    config.xdpi = values[i];
+#else
                     config.xdpi = values[i] / 1000.0f;
+#endif
                     break;
                 case HWC_DISPLAY_DPI_Y:
+#ifdef MARVELL_HWC_ENHANCEMENT
+                    config.ydpi = values[i];
+#else
                     config.ydpi = values[i] / 1000.0f;
+#endif
                     break;
 #ifdef QCOM_BSP
                 case HWC_DISPLAY_SECURE:
