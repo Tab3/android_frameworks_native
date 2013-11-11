@@ -1342,7 +1342,11 @@ void HWComposer::dump(String8& result) const {
                             "SIDEBAND",
                             "HWC_CURSOR",
                             "FB_BLIT",
+#ifdef MARVELL_HWC_ENHANCEMENT
+                            "HWC_2D"};
+#else
                             "UNKNOWN"};
+#endif
                     if (type >= NELEM(compositionTypeName))
                         type = NELEM(compositionTypeName) - 1;
 

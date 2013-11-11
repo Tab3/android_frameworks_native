@@ -36,6 +36,11 @@ public:
     virtual const char* getTypeId() const { return "LayerDim"; }
     virtual void onDraw(const sp<const DisplayDevice>& hw, const Region& clip,
             bool useIdentityTransform);
+    virtual void setGeometry(const sp<const DisplayDevice>& hw,
+            HWComposer::HWCLayerInterface& layer);
+    virtual void setPerFrameData(const sp<const DisplayDevice>& hw,
+            HWComposer::HWCLayerInterface& layer);
+
     virtual bool isOpaque(const Layer::State&) const { return false; }
     virtual bool isSecure() const         { return false; }
     virtual bool isFixedSize() const      { return true; }
