@@ -93,6 +93,11 @@ else
     LOCAL_CFLAGS += -DMAX_VIRTUAL_DISPLAY_DIMENSION=0
 endif
 
+# Marvell HWC1.2 API addition
+ifeq ($(TARGET_BOARD_PLATFORM),mrvl)
+    LOCAL_CFLAGS += -DMARVELL_HWC_ENHANCEMENT
+endif
+
 LOCAL_CFLAGS += -fvisibility=hidden -Werror=format
 LOCAL_CFLAGS += -std=c++11
 

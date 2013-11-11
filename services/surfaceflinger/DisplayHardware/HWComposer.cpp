@@ -359,6 +359,9 @@ static const uint32_t DISPLAY_ATTRIBUTES[] = {
     //HDMI can be secure based on HDCP
     HWC_DISPLAY_SECURE,
 #endif
+#ifdef MARVELL_HWC_ENHANCEMENT
+    HWC_DISPLAY_FORMAT,
+#endif
     HWC_DISPLAY_NO_ATTRIBUTE,
 };
 #define NUM_DISPLAY_ATTRIBUTES (sizeof(DISPLAY_ATTRIBUTES) / sizeof(DISPLAY_ATTRIBUTES)[0])
@@ -419,6 +422,11 @@ status_t HWComposer::queryDisplayProperties(int disp) {
                     config.secure = values[i];
                     break;
 #endif
+#ifdef MARVELL_HWC_ENHANCEMENT
+                case HWC_DISPLAY_FORMAT:
+                    mDisplayData[disp].format = values[i];
+                    break;
+#endif
                 default:
                     ALOG_ASSERT(false, "unknown display attribute[%zu] %#x",
                             i, DISPLAY_ATTRIBUTES[i]);
@@ -435,8 +443,10 @@ status_t HWComposer::queryDisplayProperties(int disp) {
         mDisplayData[disp].configs.push_back(config);
     }
 
+#ifndef MARVELL_HWC_ENHANCEMENT
     // FIXME: what should we set the format to?
     mDisplayData[disp].format = HAL_PIXEL_FORMAT_RGBA_8888;
+#endif
     mDisplayData[disp].connected = true;
     return NO_ERROR;
 }
@@ -551,6 +561,19 @@ size_t HWComposer::getCurrentConfig(int disp) const {
     return mDisplayData[disp].currentConfig;
 }
 
+void HWComposer::setEglSurface(int disp, void* dpy, void* surface) {
+    if (uint32_t(disp)>31 || !mAllocatedDisplayIDs.hasBit(disp)) {
+        ALOGD("ignoring unallocated display ID ");
+        return;
+    }
+
+    if(surface == NULL || dpy == NULL){
+        ALOGD("Set the wrong egl parameter !");
+    }
+    mDisplayData[disp].list->dpy = dpy;
+    mDisplayData[disp].list->sur = surface;
+}
+
 void HWComposer::eventControl(int disp, int event, int enabled) {
     if (uint32_t(disp)>31 || !mAllocatedDisplayIDs.hasBit(disp)) {
         ALOGD("eventControl ignoring event %d on unallocated disp %d (en=%d)",
@@ -657,6 +680,8 @@ status_t HWComposer::createWorkList(int32_t id, size_t numLayers) {
         disp.list->retireFenceFd = -1;
         disp.list->flags = HWC_GEOMETRY_CHANGED;
         disp.list->numHwLayers = numLayers;
+        disp.list->dpy = EGL_NO_DISPLAY;
+        disp.list->sur = EGL_NO_SURFACE;
     }
     return NO_ERROR;
 }
@@ -706,12 +731,12 @@ status_t HWComposer::prepare() {
         mLists[i] = disp.list;
         if (mLists[i]) {
             if (hwcHasApiVersion(mHwc, HWC_DEVICE_API_VERSION_1_3)) {
-                mLists[i]->outbuf = disp.outbufHandle;
-                mLists[i]->outbufAcquireFenceFd = -1;
+                //mLists[i]->outbuf = disp.outbufHandle;
+                //mLists[i]->outbufAcquireFenceFd = -1;
             } else if (hwcHasApiVersion(mHwc, HWC_DEVICE_API_VERSION_1_1)) {
                 // garbage data to catch improper use
-                mLists[i]->dpy = (hwc_display_t)0xDEADBEEF;
-                mLists[i]->sur = (hwc_surface_t)0xDEADBEEF;
+                //mLists[i]->dpy = (hwc_display_t)0xDEADBEEF;
+                //mLists[i]->sur = (hwc_surface_t)0xDEADBEEF;
             } else {
                 mLists[i]->dpy = EGL_NO_DISPLAY;
                 mLists[i]->sur = EGL_NO_SURFACE;
@@ -929,7 +954,8 @@ int HWComposer::getVisualID() const {
         // FIXME: temporary hack until HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED
         // is supported by the implementation. we can only be in this case
         // if we have HWC 1.1
-        return HAL_PIXEL_FORMAT_RGBA_8888;
+        //return HAL_PIXEL_FORMAT_RGBA_8888;
+        return mDisplayData[HWC_DISPLAY_PRIMARY].format;
         //return HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED;
     } else {
         return mFbDev->format;

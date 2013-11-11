@@ -1192,6 +1192,7 @@ void SurfaceFlinger::setUpHWComposer() {
         for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
             sp<const DisplayDevice> hw(mDisplays[dpy]);
             const int32_t id = hw->getHwcDisplayId();
+            hwc.setEglSurface(id, mEGLDisplay, hw->getEGLSurface());
             if (id >= 0) {
                 // Get the layers in the current drawying state
                 const LayerVector& layers(mDrawingState.layersSortedByZ);
