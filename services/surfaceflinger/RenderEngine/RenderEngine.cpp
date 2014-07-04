@@ -383,8 +383,13 @@ static status_t selectEGLConfig(EGLDisplay display, EGLint format,
         attribs[EGL_RED_SIZE]                   = 8;
         attribs[EGL_GREEN_SIZE]                 = 8;
         attribs[EGL_BLUE_SIZE]                  = 8;
+#ifdef MARVELL_HWC_ENHANCEMENT
+        wantedAttribute                         = EGL_NATIVE_VISUAL_ID;
+        wantedAttributeValue                    = format;
+#else
         wantedAttribute                         = EGL_NONE;
         wantedAttributeValue                    = EGL_NONE;
+#endif
     } else {
         // if no renderable type specified, fallback to a simplified query
         wantedAttribute                         = EGL_NATIVE_VISUAL_ID;
