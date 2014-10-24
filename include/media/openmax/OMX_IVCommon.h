@@ -147,6 +147,25 @@ typedef enum OMX_COLOR_FORMATTYPE {
     OMX_COLOR_Format18BitBGR666,
     OMX_COLOR_Format24BitARGB6666,
     OMX_COLOR_Format24BitABGR6666,
+    OMX_COLOR_Format32bitABGR8888, //"OMX_COLOR_Format32bitABGR8888" to "OMX_COLOR_Format24BitRGBA6666" are added in OMX 1.2
+    OMX_COLOR_FormatYVU420Planar,
+    OMX_COLOR_FormatYVU420PackedPlanar,
+    OMX_COLOR_FormatYVU420SemiPlanar,
+    OMX_COLOR_FormatYVU420PackedSemiPlanar,
+    OMX_COLOR_FormatYVU422Planar,
+    OMX_COLOR_FormatYVU422PackedPlanar,
+    OMX_COLOR_FormatYVU422SemiPlanar,
+    OMX_COLOR_FormatYVU422PackedSemiPlanar,
+    OMX_COLOR_Format8bitBGR233,
+    OMX_COLOR_Format12bitBGR444,
+    OMX_COLOR_Format16bitBGRA4444,
+    OMX_COLOR_Format16bitBGRA5551,
+    OMX_COLOR_Format18bitBGRA5661,
+    OMX_COLOR_Format19bitBGRA6661,
+    OMX_COLOR_Format24bitBGRA7881,
+    OMX_COLOR_Format25bitBGRA8881,
+    OMX_COLOR_Format24BitBGRA6666,
+    OMX_COLOR_Format24BitRGBA6666,
     OMX_COLOR_FormatKhronosExtensions = 0x6F000000, /**< Reserved region for introducing Khronos Standard Extensions */
     OMX_COLOR_FormatVendorStartUnused = 0x7F000000, /**< Reserved region for introducing Vendor Extensions */
     /**<Reserved android opaque colorformat. Tells the encoder that
