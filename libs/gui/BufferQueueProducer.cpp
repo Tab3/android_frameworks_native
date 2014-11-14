@@ -210,7 +210,9 @@ status_t BufferQueueProducer::waitForFreeSlotThenRelock(const char* caller,
                         "(dequeued=%d undequeued=%d)",
                         caller, minUndequeuedCount,
                         dequeuedCount, newUndequeuedCount);
+#ifndef MRVL_HARDWARE
                 return INVALID_OPERATION;
+#endif
             }
         }
 
@@ -1014,7 +1016,12 @@ void BufferQueueProducer::allocateBuffers(bool async, uint32_t width,
                 mSlots[slot].mGraphicBuffer = buffers[i];
                 mSlots[slot].mFrameNumber = 0;
                 mSlots[slot].mFence = Fence::NO_FENCE;
+#ifdef MRVL_HARDWARE
+                BQ_LOGV("allocateBuffers: allocated a new buffer in slot %d, format: %d", slot, 
+					mSlots[slot].mGraphicBuffer->getPixelFormat());
+#else
                 BQ_LOGV("allocateBuffers: allocated a new buffer in slot %d", slot);
+#endif
             }
 
             mCore->mIsAllocating = false;

@@ -359,6 +359,9 @@ static const uint32_t DISPLAY_ATTRIBUTES[] = {
     //HDMI can be secure based on HDCP
     HWC_DISPLAY_SECURE,
 #endif
+#ifdef MRVL_HARDWARE
+    HWC_DISPLAY_FORMAT,
+#endif
     HWC_DISPLAY_NO_ATTRIBUTE,
 };
 #define NUM_DISPLAY_ATTRIBUTES (sizeof(DISPLAY_ATTRIBUTES) / sizeof(DISPLAY_ATTRIBUTES)[0])
@@ -409,14 +412,27 @@ status_t HWComposer::queryDisplayProperties(int disp) {
                     config.height = values[i];
                     break;
                 case HWC_DISPLAY_DPI_X:
+#ifdef MRVL_HARDWARE
+                    config.xdpi = values[i];
+#else
                     config.xdpi = values[i] / 1000.0f;
+#endif
                     break;
                 case HWC_DISPLAY_DPI_Y:
+#ifdef MRVL_HARDWARE
+                    config.ydpi = values[i];
+#else
                     config.ydpi = values[i] / 1000.0f;
+#endif
                     break;
 #ifdef QCOM_BSP
                 case HWC_DISPLAY_SECURE:
                     config.secure = values[i];
+                    break;
+#endif
+#ifdef MRVL_HARDWARE
+                case HWC_DISPLAY_FORMAT:
+                    config.format = values[i];
                     break;
 #endif
                 default:
@@ -550,6 +566,22 @@ const Vector<HWComposer::DisplayConfig>& HWComposer::getConfigs(int disp) const 
 size_t HWComposer::getCurrentConfig(int disp) const {
     return mDisplayData[disp].currentConfig;
 }
+
+#ifdef MRVL_HARDWARE
+void HWComposer::setEglSurface(int id, void* dpy, void* surface) {
+    if (uint32_t(id)>31 || !mAllocatedDisplayIDs.hasBit(id)) {
+        ALOGD("ignoring unallocated display ID ");
+        return;
+    }
+
+    if(surface == NULL || dpy == NULL){
+        ALOGD("Set the wrong egl parameter !");
+    }
+	
+    mDisplayData[id].list->dpy = dpy;
+    mDisplayData[id].list->sur = surface;
+}
+#endif
 
 void HWComposer::eventControl(int disp, int event, int enabled) {
     if (uint32_t(disp)>31 || !mAllocatedDisplayIDs.hasBit(disp)) {
@@ -713,8 +745,10 @@ status_t HWComposer::prepare() {
                 mLists[i]->dpy = (hwc_display_t)0xDEADBEEF;
                 mLists[i]->sur = (hwc_surface_t)0xDEADBEEF;
             } else {
+#ifndef MRVL_HARDWARE
                 mLists[i]->dpy = EGL_NO_DISPLAY;
                 mLists[i]->sur = EGL_NO_SURFACE;
+#endif
             }
         }
     }
@@ -1316,7 +1350,11 @@ void HWComposer::dump(String8& result) const {
                             "SIDEBAND",
                             "HWC_CURSOR",
                             "FB_BLIT",
-                            "UNKNOWN"};
+#ifdef MRVL_HARDWARE
+                            "HWC_2D"};
+#else
+                            "UKNOWN"};
+#endif
                     if (type >= NELEM(compositionTypeName))
                         type = NELEM(compositionTypeName) - 1;
 

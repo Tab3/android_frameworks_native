@@ -266,9 +266,29 @@ void DisplayDevice::swapBuffers(HWComposer& hwc) const {
     //    (a) we have framebuffer target support (not present on legacy
     //        devices, where HWComposer::commit() handles things); or
     //    (b) this is a virtual display
+
+
+    // when (cur== end) we may have to consider wether we need call eglSwapBuffers
+    // caution: this change is to deal with the issue that SurfaceFlinger
+    //  called drawWormHoles() but not call eglSwapBuffers here.
+    //  however, there may have potential risk in case SurfaceFlinger
+    //  didn't call drawWormHoles(). if so, SurfaceFlinger may
+    //  wrongly call eglSwapBuffers one more time.
+
+#ifdef MRVL_HARDWARE
+    const int32_t id = getHwcDisplayId();
+    HWComposer::LayerListIterator cur = hwc.begin(id);
+    const HWComposer::LayerListIterator end = hwc.end(id);
+#endif
+
     if (hwc.initCheck() != NO_ERROR ||
+#ifdef MRVL_HARDWARE
+            ((hwc.supportsFramebufferTarget() || mType >= DISPLAY_VIRTUAL) &&
+            (hwc.hasGlesComposition(mHwcDisplayId) || (cur==end)))){
+#else
             (hwc.hasGlesComposition(mHwcDisplayId) &&
              (hwc.supportsFramebufferTarget() || mType >= DISPLAY_VIRTUAL))) {
+#endif
         EGLBoolean success = eglSwapBuffers(mDisplay, mSurface);
         if (!success) {
             EGLint error = eglGetError();

@@ -279,6 +279,9 @@ public:
 #ifdef QCOM_BSP
         bool secure;
 #endif
+#ifdef MRVL_HARDWARE
+        uint32_t format;
+#endif
         nsecs_t refresh;
     };
 
@@ -303,6 +306,9 @@ public:
     const Vector<DisplayConfig>& getConfigs(int disp) const;
     size_t getCurrentConfig(int disp) const;
 
+#ifdef MRVL_HARDWARE
+    void setEglSurface(int disp, void* dpy, void* surface);
+#endif
     status_t setVirtualDisplayProperties(int32_t id, uint32_t w, uint32_t h,
             uint32_t format);
 
